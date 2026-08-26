@@ -58,8 +58,61 @@ Dataset: `HR_capstone_dataset.csv`
 ---
 
 ## ANALYZE Stage
-*(To be completed after EDA)*
+## PACE: Analyze Stage — Reflections
 
+### What did you observe about the relationships between variables?
+Several clear relationships emerged. `satisfaction_level` had the strongest 
+correlation with `left` (-0.39) — lower satisfaction is associated with leaving. 
+Two workload variables, `number_project` and `average_monthly_hours`, showed a 
+**non-linear (U-shaped)** relationship with attrition: both very low workload 
+(2 projects, ~130-160 hrs./mo.) and very high workload (6-7 projects, 
+240-310 hrs./mo.) were associated with leaving, while moderate workload (3-4 
+projects) was associated with staying. `promotion_last_5years` also stood out — 
+employees who were promoted almost never left, while unpromoted employees who 
+worked very long hours were disproportionately represented among leavers. 
+`tenure` showed a similarly non-linear pattern: attrition risk rose in the 
+mid-tenure range (5-6 years) before dropping to zero for employees with 7+ 
+years of tenure. Department and last_evaluation, by contrast, showed weak 
+relationships with attrition on their own.
+
+### What do you observe about the distributions in the data?
+Several distributions showed unusually sharp, almost rectangular cluster 
+boundaries (e.g., in the `average_monthly_hours` vs. `satisfaction_level` and 
+`vs. last_evaluation` scatterplots, and the tenure-4 satisfaction boxplot) 
+rather than the smooth, organic spread expected from genuine self-reported 
+data. This suggests parts of the dataset may be synthetic. Department sizes 
+were also unevenly distributed (from 436 employees in Management to 3,239 in 
+Sales), which affects how reliable department-level attrition rates are.
+
+### What transformations did you make with your data? Why did you choose to make those decisions?
+Duplicate rows were removed — it was highly unlikely that different employees 
+would report identical values across all 10 columns, so these were treated as 
+non-legitimate entries. Outliers in `tenure` were identified using the IQR 
+method (1.5x IQR rule) to flag employees whose tenure fell unusually far from 
+the typical range, which will inform decisions about how to handle them 
+depending on which model is used (tree-based models are generally robust to 
+outliers, while logistic regression is more sensitive).
+
+### What are some purposes of EDA before constructing a predictive model?
+EDA helps surface data quality issues (duplicates, outliers, possible synthetic 
+patterns) before they silently affect model results. It also reveals the shape 
+of relationships between variables — for example, discovering that workload's 
+relationship with attrition is U-shaped rather than linear directly informs 
+model choice, since linear models like logistic regression won't capture that 
+pattern as well as tree-based models would without additional feature 
+engineering. Finally, EDA helps identify which variables are likely to be 
+strong predictors, guiding feature selection.
+
+
+### Do you have any ethical considerations in this stage?
+The dataset's self-reported nature (satisfaction, evaluation) may carry 
+reporting bias. The possible presence of synthetic or manipulated data (based 
+on the unusually sharp cluster boundaries observed) is worth flagging as a 
+limitation — any conclusions drawn should be validated against real company 
+data before being used to justify actual HR decisions. Additionally, care 
+should be taken in how findings are communicated: framing predictions as a tool 
+to proactively support at-risk employees, rather than to penalize or target 
+them, is important to avoid misuse of the model's output.
 ## CONSTRUCT Stage
 *(To be completed after model building)*
 
