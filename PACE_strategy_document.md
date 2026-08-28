@@ -180,4 +180,65 @@ on manager-level workload and performance-review practices, rather than
 individual employee blame.
 
 ## EXECUTE Stage
-*(To be completed after model evaluation, for the executive summary)*
+
+### What key insights emerged from your model(s)?
+Four variables — `last_evaluation`, `number_project`, `tenure`, and 
+`overworked` — account for ~99.6% of the model's predictive power, while 
+department and salary contribute almost nothing. The relationship between 
+workload (project count, hours) and attrition is U-shaped, not linear: both 
+underutilized employees (2 projects) and overworked employees (6-7 projects) 
+show elevated attrition, while a moderate workload (3-4 projects) is 
+associated with retention. Employees who were promoted in the last 5 years 
+almost never left. Tenure showed a non-linear pattern too — risk rose in the 
+mid-tenure range (5-6 years) before dropping to zero for employees with 7+ 
+years.
+
+### What business recommendations do you propose based on the models built?
+- Cap the number of projects employees can be assigned to.
+- Investigate promotion and career-growth pathways, especially for 
+  mid-tenure (5-6 year) employees.
+- Reward or reduce excessive working hours rather than requiring them without 
+  proportionate compensation.
+- Clarify overtime pay policies and workload/time-off expectations.
+- Hold company-wide and team-level discussions on work culture.
+- Avoid reserving high evaluation scores only for employees working 200+ 
+  hours/month — use a more proportionate scale for rewarding effort.
+- Since department and salary are not meaningful drivers, prioritize 
+  retention interventions company-wide rather than targeting specific 
+  departments or pay bands.
+
+### What potential recommendations would you make to your manager/company?
+Deploy the model as a proactive support tool — flagging at-risk employees for 
+manager check-ins, workload review, or career development conversations — 
+rather than as a punitive tool. Since the model relies on data the company 
+already reliably collects (`last_evaluation`, `number_project`, `tenure`, 
+hours), it can be run on the full active employee population without 
+additional data collection like satisfaction surveys.
+
+### Do you think your model could be improved? Why or why not? How?
+Yes: (1) test XGBoost as a third model type for a fuller comparison; (2) 
+explore interaction features (e.g., `number_project` × `tenure`); (3) test 
+alternative `overworked` thresholds; (4) investigate whether `last_evaluation` 
+— the single most important feature — carries a similar data leakage risk to 
+`satisfaction_level`, since evaluations may not be conducted frequently enough 
+to be reliably available for all employees, and/or the causal direction may 
+run the other way (dissatisfaction could lower evaluation scores rather than 
+low scores causing departure).
+
+### Given what you know about the data and the models you were using, what other questions could you address for the team?
+- Is the mid-tenure attrition spike (5-6 years) linked to a specific policy 
+  (e.g., promotion cycles, benefit vesting)?
+- What's driving the unusually narrow, low satisfaction scores seen in the 
+  4-year tenure group during EDA?
+- Would predicting `last_evaluation` or `satisfaction_level` directly (rather 
+  than `left`) yield more actionable insight into their own drivers?
+- Could K-means clustering reveal natural employee segments worth exploring 
+  separately?
+
+
+### Do you have any ethical considerations in this stage?
+Recommendations should be framed to support flagged employees (workload 
+review, career conversations) rather than penalize them. Given the unusually 
+sharp cluster boundaries observed during EDA (suggesting possible synthetic 
+data), findings should be validated against real company data before being 
+used to justify actual HR policy changes.
