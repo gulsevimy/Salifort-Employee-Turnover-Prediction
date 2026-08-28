@@ -114,7 +114,70 @@ should be taken in how findings are communicated: framing predictions as a tool
 to proactively support at-risk employees, rather than to penalize or target 
 them, is important to avoid misuse of the model's output.
 ## CONSTRUCT Stage
-*(To be completed after model building)*
+## PACE: Construct Stage — Reflections
+
+### Do you notice anything odd?
+Yes — a key anomaly was the very high initial performance of the tree-based 
+models (Round 1 AUC ~0.97-0.98), which raised suspicion of data leakage. 
+Investigation identified two likely culprits: `satisfaction_level` (a survey 
+value that may not be reliably available for every employee in production) 
+and `average_monthly_hours` (which may reflect the *consequence* of an 
+employee's departure decision rather than a cause of it — employees who've 
+already decided to leave, or been marked for termination, may work fewer 
+hours as a result). Another odd finding was that `last_evaluation` showed 
+almost no linear correlation with `left` (0.0066) in the correlation heatmap, 
+yet emerged as the single most important feature in both tree-based models — 
+this reflects a non-linear/interaction effect that simple correlation missed.
+
+### Which independent variables did you choose for the model and why?
+The final (champion) models used all available variables except 
+`satisfaction_level` and `average_monthly_hours`, which were dropped for the 
+data leakage reasons above. `average_monthly_hours` was replaced with a 
+coarser binary feature, `overworked` (>175 hrs./mo.), to retain a workload 
+signal without the leakage risk. Categorical variables (`department`, 
+`salary`) were encoded — `salary` ordinally (given its natural low/medium/high 
+ordering) and `department` via one-hot encoding (no natural ordering).
+
+### Are each of the assumptions met?
+For logistic regression, several assumptions were violated: the linearity 
+assumption between predictors and the logit of the outcome did not hold for 
+`number_project` and `average_monthly_hours`, both of which showed non-linear 
+(U-shaped) relationships with attrition during EDA. This was reflected in the 
+model's poor recall (0.26). Multicollinearity was checked and found not to be 
+severe among the continuous predictors (max correlation 0.33, well below the 
+~0.7-0.8 concern threshold). For the tree-based models, no linearity or 
+distributional assumptions apply, which is part of why they performed 
+substantially better.
+
+### How well does your model fit the data?
+The champion random forest model achieved strong, consistent performance: 
+test-set recall of 0.90, precision of 0.87, F1 of 0.89, accuracy of 0.96, and 
+AUC of 0.94. Test-set scores closely matched (and in some cases slightly 
+exceeded) cross-validation scores, indicating the model generalizes well and 
+is not overfitting.
+
+### Can you improve it? Is there anything you would change about the model?
+Possible next steps: (1) explore additional feature engineering, such as 
+interaction terms between `number_project` and `tenure`, given their combined 
+importance; (2) test alternative overwork thresholds beyond 175 hrs./mo. to 
+see if recall/precision can be further balanced; (3) evaluate XGBoost as a 
+third model type, as instructed in the original activity, for a fuller 
+comparison; (4) consider whether decision tree (slightly higher recall, much 
+faster training, more interpretable) might be preferable to random forest 
+(slightly higher AUC) depending on how the model will actually be deployed 
+and explained to stakeholders.
+
+### Do you have any ethical considerations in this stage?
+The data leakage investigation itself was an ethical consideration — deploying 
+a model that relies on `satisfaction_level` could produce misleadingly 
+optimistic performance claims if that data isn't consistently available in 
+practice. More broadly, this model should be framed to stakeholders as a tool 
+for proactively supporting employees flagged as at-risk (e.g., workload 
+review, career development conversations), not for penalizing them or 
+treating the prediction as a certainty. Given `last_evaluation` and 
+`number_project` are the top drivers, any resulting interventions should focus 
+on manager-level workload and performance-review practices, rather than 
+individual employee blame.
 
 ## EXECUTE Stage
 *(To be completed after model evaluation, for the executive summary)*
